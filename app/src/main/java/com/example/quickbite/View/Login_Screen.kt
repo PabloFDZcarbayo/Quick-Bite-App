@@ -13,12 +13,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -49,44 +45,41 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import com.example.quickbite.R
 
 @Composable
-fun Login_Screen(modifier: Modifier) {
+fun Login_Screen(modifier: Modifier, navigateToHome: () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(color = Color(0xFFf4f0bb))
     ) {
-        TopSection(
+        LoginTopSection(
             Modifier
                 .align(Alignment.TopCenter)
                 .height(400.dp)
         )
-        Body(
+        LoginBody(
             Modifier
-                .align(Alignment.BottomCenter)
-
+                .align(Alignment.BottomCenter),
+            navigateToHome
 
         )
     }
 }
 
 @Composable
-fun TopSection(modifier: Modifier = Modifier) {
+fun LoginTopSection(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
         ImageBackground()
-        Header(Modifier.align(Alignment.TopStart))
+        LoginHeader(Modifier.align(Alignment.TopStart))
         ImageLogo(
             Modifier
                 .align(Alignment.Center)
@@ -167,7 +160,7 @@ fun SingUp() {
 
 
 @Composable
-fun Body(modifier: Modifier) {
+fun LoginBody(modifier: Modifier, navigateToHome: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var isLoginEnable by rememberSaveable { mutableStateOf(false) }
@@ -176,11 +169,7 @@ fun Body(modifier: Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp))
-            .border(
-                width = 2.dp,
-                color = Color(0xFF000000),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-            ),
+
     ) {
         Column(
             Modifier
@@ -201,7 +190,7 @@ fun Body(modifier: Modifier) {
             Spacer(Modifier.size(8.dp))
             ForgotPassword(Modifier.align(Alignment.End))
             Spacer(Modifier.size(16.dp))
-            LoginButton(isLoginEnable)
+            LoginButton(isLoginEnable, navigateToHome)
             Spacer(Modifier.size(10.dp))
             LoginDivider(Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.size(10.dp))
@@ -232,7 +221,7 @@ fun SocialLogin(modifier: Modifier) {
             Modifier.padding(start = 12.dp),
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp,
-            color = Color(0xFF6a381f)
+            color = Color(0xFFfb8500)
         )
     }
     Row(
@@ -250,7 +239,7 @@ fun SocialLogin(modifier: Modifier) {
             Modifier.padding(start = 12.dp),
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp,
-            color = Color(0xFF6a381f)
+            color = Color(0xFFfb8500)
         )
     }
 
@@ -288,9 +277,9 @@ fun LoginDivider(modifier: Modifier) {
 }
 
 @Composable
-fun LoginButton(loginEnable: Boolean) {
+fun LoginButton(loginEnable: Boolean, navigateToHome: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = { navigateToHome() },
         enabled = loginEnable,
         modifier = Modifier
             .fillMaxWidth()
@@ -299,7 +288,7 @@ fun LoginButton(loginEnable: Boolean) {
             containerColor = Color(0xFFfb8500),
             disabledContainerColor = Color(0xFFedede9),
             contentColor = Color(0xFF43291f),
-            disabledContentColor = Color(0xFF43291f),
+            disabledContentColor = Color(0xFFd6ccc2),
 
             )
     ) {
@@ -327,87 +316,108 @@ fun ForgotPassword(modifier: Modifier) {
 
 @Composable
 fun Email(modifier: Modifier, email: String, onTextChanged: (String) -> Unit) {
-    TextField(
-        email,
-        onValueChange = { onTextChanged(it) },
-        modifier
+
+    Box(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(end = 30.dp, start = 30.dp),
-        textStyle = TextStyle(fontSize = 20.sp),
-        placeholder = { Text("Email", fontSize = 20.sp) },
-        maxLines = 1, //Hace que como mucho pueda escribir una línea
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), //Configuramos para que el teclado sea de tipo email
+            .padding(end = 30.dp, start = 30.dp)
+            .border(
+                width = 1.dp, // Grosor del borde
+                color = Color(0xFFfb8500), // Color naranja
+                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp) // Forma del borde
+            )
+    ) {
+        TextField(
+            email,
+            onValueChange = { onTextChanged(it) },
+            modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(fontSize = 20.sp),
+            placeholder = { Text("Email", fontSize = 20.sp) },
+            maxLines = 1, //Hace que como mucho pueda escribir una línea
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), //Configuramos para que el teclado sea de tipo email
 
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFbfd8bd),
-            focusedContainerColor = Color(0xFF98c9a3),
-            cursorColor = Color(0xFF6a381f),
-            focusedIndicatorColor = Color(0xFF6a381f),
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color(0xFF6a381f),
-            unfocusedTextColor = Color(0xFF6a381f),
-            unfocusedPlaceholderColor = Color(0xFF774e24),
-            focusedPlaceholderColor = Color(0xFFdcab6b)
-
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFe9ecef),
+                cursorColor = Color(0xFFfb8500),
+                focusedIndicatorColor = Color(0xFFfb8500),
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTextColor = Color(0xFFfb8500),
+                unfocusedTextColor = Color(0xFFfb8500),
+                unfocusedPlaceholderColor = Color(0xFFfb8500),
+                focusedPlaceholderColor = Color(0xFFdcab6b)
+            ),
+            shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
         )
-    )
+    }
 }
-
 
 @Composable
 fun Password(modifier: Modifier, password: String, onTextChanged: (String) -> Unit) {
     var passwordVisibility by rememberSaveable { mutableStateOf(false) }
-    TextField(
-        password,
-        onValueChange = { onTextChanged(it) },
-        modifier
+
+    Box(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(end = 30.dp, start = 30.dp),
-        textStyle = TextStyle(fontSize = 20.sp),
-        placeholder = { Text(text = "Contraseña", fontSize = 20.sp) },
-        maxLines = 1, //Hace que como mucho pueda escribir una línea
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), //Configuramos para que el teclado sea de tipo contraseña
+            .padding(end = 30.dp, start = 30.dp)
+            .border(
+                width = 1.dp, // Grosor del borde
+                color = Color(0xFFfb8500), // Color naranja
+                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp) // Forma del borde
+            )
+    ) {
+        TextField(
+            password,
+            onValueChange = { onTextChanged(it) },
+            modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(fontSize = 20.sp),
+            placeholder = { Text(text = "Contraseña", fontSize = 20.sp) },
+            maxLines = 1, //Hace que como mucho pueda escribir una línea
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), //Configuramos para que el teclado sea de tipo contraseña
 
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFbfd8bd),
-            focusedContainerColor = Color(0xFF98c9a3),
-            cursorColor = Color(0xFF6a381f),
-            focusedIndicatorColor = Color(0xFF6a381f),
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color(0xFF6a381f),
-            unfocusedTextColor = Color(0xFF6a381f),
-            unfocusedPlaceholderColor = Color(0xFF774e24),
-            focusedPlaceholderColor = Color(0xFFdcab6b)
-        ),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color(0xFFe9ecef),
+                cursorColor = Color(0xFFfb8500),
+                focusedIndicatorColor = Color(0xFFfb8500),
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTextColor = Color(0xFFfb8500),
+                unfocusedTextColor = Color(0xFFfb8500),
+                unfocusedPlaceholderColor = Color(0xFFfb8500),
+                focusedPlaceholderColor = Color(0xFFdcab6b)
+            ), shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
 
-        /*
-        En este bloque añadimos el icono de mostrar ocultar la contraseña
-        La primera parte gestiona que icono se muestra dependiendo de la variable passwordVisibility
-        La ultima parte gestiona el evento de mostrar/ocultar la contraseña al pulsar el icono
-        */
-        trailingIcon = {
-            val imagen = if (passwordVisibility) {
-                R.drawable.hidden_eye
-            } else {
-                R.drawable.eye
-            }
+            /*
+            En este bloque añadimos el icono de mostrar ocultar la contraseña
+            La primera parte gestiona que icono se muestra dependiendo de la variable passwordVisibility
+            La ultima parte gestiona el evento de mostrar/ocultar la contraseña al pulsar el icono
+            */
+            trailingIcon = {
+                val imagen = if (passwordVisibility) {
+                    R.drawable.hidden_eye
+                } else {
+                    R.drawable.eye
+                }
 
-            IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(
-                    modifier = Modifier.size(30.dp),
-                    painter = painterResource(id = imagen),
-                    tint = Color(0xFF6a381f),
-                    contentDescription = "Mostrar contraseña"
-                )
-            }
-        },
-        visualTransformation = if (passwordVisibility) VisualTransformation.None
-        else PasswordVisualTransformation()
-    )
+                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+                    Icon(
+                        modifier = Modifier.size(30.dp),
+                        painter = painterResource(id = imagen),
+                        tint = Color(0xFFfb8500),
+                        contentDescription = "Mostrar contraseña"
+                    )
+                }
+            },
+            visualTransformation = if (passwordVisibility) VisualTransformation.None
+            else PasswordVisualTransformation()
+        )
+    }
+
 }
-
 
 @Composable
 fun ImageLogo(modifier: Modifier) {
@@ -418,10 +428,9 @@ fun ImageLogo(modifier: Modifier) {
     )
 }
 
-
 @SuppressLint("ContextCastToActivity")
 @Composable
-fun Header(modifier: Modifier) {
+fun LoginHeader(modifier: Modifier) {
     val activity =
         LocalContext.current as Activity // Almacenar el contexto de la actividad
 
