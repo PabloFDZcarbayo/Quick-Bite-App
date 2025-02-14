@@ -16,6 +16,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,15 +28,28 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import com.example.quickbite.Model.Category
+import com.example.quickbite.ViewModel.UnsplashViewModel
 
 @Preview(showBackground = true)
 @Composable
 fun RecipiesCategories_ScreenPreview() {
-    RecipiesCategories_Screen(Modifier)
 }
 
 @Composable
-fun RecipiesCategories_Screen(modifier: Modifier) {
+fun RecipiesCategories_Screen(modifier: Modifier, viewModel: UnsplashViewModel) {
+
+    val categories = viewModel.categories
+    val isLoading = remember { mutableStateOf(true) }
+
+    // Ejecutamos el efecto solo una vez cuando la pantalla se monta.
+    LaunchedEffect(Unit) {
+        // Llamada al ViewModel para cargar las imágenes
+        viewModel.getImages()
+        isLoading.value = false // Actualizamos el estado cuando terminamos de cargar
+    }
+
     Column(
         modifier
             .fillMaxSize()
@@ -55,7 +71,9 @@ fun RecipiesCategories_Screen(modifier: Modifier) {
             RecipiesCategoriesBody(
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .background(Color(0xFFFFFFFF))
+                    .background(Color(0xFFFFFFFF)),
+                categories, //mandamos las categorias
+                isLoading.value //indicamos si esta cargando
             )
         }
         Spacer(Modifier.weight(1f))
@@ -65,7 +83,7 @@ fun RecipiesCategories_Screen(modifier: Modifier) {
 }
 
 @Composable
-fun RecipiesCategoriesBody(modifier: Modifier) {
+fun RecipiesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoading: Boolean) {
     Column(
         modifier
             .fillMaxWidth()
@@ -88,7 +106,6 @@ fun RecipiesCategoriesBody(modifier: Modifier) {
             fontSize = 15.sp,
             color = Color(0xFF6fb8500)
         )
-
         HorizontalDivider(Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFF6fb8500))
         Row(
             modifier

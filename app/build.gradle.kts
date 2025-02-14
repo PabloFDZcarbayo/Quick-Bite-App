@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
     id("kotlin-kapt")
     id("kotlin-parcelize")
 
@@ -59,10 +60,14 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.retrofit)
-    implementation(libs.gson)
+    implementation(libs.converter.gson)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
+
+
+    implementation(libs.kotlinx.coroutines.core)
 
 
 

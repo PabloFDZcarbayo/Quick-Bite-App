@@ -1,4 +1,4 @@
-package com.example.quickbite.NavigationGuide.Core.Navigation
+package com.example.quickbite.Core.Navigation
 
 import kotlinx.serialization.Serializable
 
