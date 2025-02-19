@@ -56,18 +56,24 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //Navegacion por objetos compose
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
+    //Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
+    //Hilt compose
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
-
+    //Couroutines
     implementation(libs.kotlinx.coroutines.core)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
 
 

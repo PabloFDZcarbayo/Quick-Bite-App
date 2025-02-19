@@ -1,8 +1,13 @@
 package com.example.quickbite.ViewModel
 
+import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickbite.Data.Remote.Repositories.UnsplashRepository
+import com.example.quickbite.Data.Remote.UnsplashService
 import com.example.quickbite.Model.Category
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -13,25 +18,36 @@ import javax.inject.Inject
 @HiltViewModel
 class UnsplashViewModel @Inject constructor(private val unsplashRepository: UnsplashRepository) :
     ViewModel() {
-
     private val apiKey = "2JduZMCeKvOAys0X7xMmBsGwe71h0a2xY5WTWPguy8k"
 
-    val categories = listOf(
-        Category(1, "Main Course", ""),
-        Category(2, "Side Dish", ""),
-        Category(3, "Dessert", ""),
-        Category(4, "Appetizer", ""),
-        Category(5, "Salad", ""),
-        Category(6, "Bread", ""),
-        Category(7, "Breakfast", ""),
-        Category(8, "Soup", ""),
-        Category(9, "Beverage", ""),
-        Category(10, "Sauce", ""),
-        Category(11, "Marinade", ""),
-        Category(12, "Finger Food", ""),
-        Category(13, "Snack", ""),
-        Category(14, "Drink", "")
-    )
+    private val _categories = mutableStateListOf<Category>()
+    val categories: List<Category> get() = _categories
+
+    private val _isLoading = mutableStateOf(true)
+    val isLoading: State<Boolean> get() = _isLoading
+
+    init {
+        _categories.addAll(
+            listOf(
+                Category(1, "Main Course", "","aliment"),
+                Category(2, "Side Dish", "","side dish"),
+                Category(3, "Dessert", "","dessert"),
+                Category(4, "Appetizer", "", "appetizer"),
+                Category(5, "Salad", "", "salad"),
+                Category(6, "Bread", "", "bread"),
+                Category(7, "Breakfast", "", "breakfast"),
+                Category(8, "Soup", "", "soup"),
+                Category(9, "Beverage", "","beverage"),
+                Category(10, "Sauce", ""),
+                Category(11, "Marinade", ""),
+                Category(12, "Finger Food", ""),
+                Category(13, "Snack", ""),
+                Category(14, "Drink", "")
+            )
+        )
+        getImages()
+
+    }
 
 
     /* Se le pasa una lista de categorias y hace las peticiones
@@ -39,20 +55,20 @@ class UnsplashViewModel @Inject constructor(private val unsplashRepository: Unsp
      Luego las guarda las imagenes en la categoria*/
     fun getImages() {
         viewModelScope.launch {
-            val response = categories.map { category ->
-                async {
-                    try {
-                        val image = unsplashRepository.getRandomImage(
-                            apiKey,
-                            category.name
-                        )
-                        category.image = image ?: ""
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+            try {
+                _isLoading.value = true
+                _categories.forEachIndexed() { index, category ->
+                    val imageResponse = unsplashRepository.getRandomImage(apiKey, category.name)
+                    val imageUrl = imageResponse?.urls?.small
+                    if (imageUrl != null) {
+                        _categories[index] = category.copy(image = imageUrl)
                     }
                 }
+            } catch (Exception: Exception) {
+                Log.d("Unsplah", "API Exception: $Exception")
+            } finally {
+                _isLoading.value = false
             }
-            response.awaitAll()
         }
     }
 }

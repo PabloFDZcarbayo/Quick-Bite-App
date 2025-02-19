@@ -5,9 +5,10 @@ import javax.inject.Inject
 
 class UnsplashRepository @Inject constructor(private val unsplashService: UnsplashService) {
 
-    suspend fun getRandomImage(apikey: String, query: String): String? {
+    suspend fun getRandomImage(apikey: String, query: String): UnsplashService.ImageResponse?{
         try {
-            return unsplashService.getRandomImage(apikey, query).url.regular
+            val images = unsplashService.getRandomImage(apikey, query)
+            return images.firstOrNull()
         } catch (Exception: Exception) {
             return null
         }

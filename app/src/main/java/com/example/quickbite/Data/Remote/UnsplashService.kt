@@ -15,15 +15,18 @@ interface UnsplashService {
         @Query("client_id") apiKey: String,
         @Query("query") query: String,
         @Query("count") count: Int = 1
-    ): ImageResponse
+    ): List<ImageResponse>
 
 
     data class ImageResponse(
-        val url: Urls
+        val urls: Urls //Debe coincidir con la respuesta del campo de la API
     )
 
     data class Urls(
-        val regular: String
+        val small: String,
+        val regular: String,
+        val full: String,
+        val raw: String
     )
 
 
