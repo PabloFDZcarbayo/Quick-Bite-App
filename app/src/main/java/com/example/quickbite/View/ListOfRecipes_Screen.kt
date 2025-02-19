@@ -57,7 +57,7 @@ fun ListOfRecipes_Screen(modifier: Modifier, name: String, viewModel: Spoonacula
             "$name", Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 28.dp),
-            textAlign = TextAlign.Center ,git
+            textAlign = TextAlign.Center,
             fontSize = 40.sp,
             fontWeight = Bold,
             color = Color(0xFFfb8500)
