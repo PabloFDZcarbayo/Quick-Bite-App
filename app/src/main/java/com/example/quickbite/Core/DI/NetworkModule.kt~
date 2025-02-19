@@ -1,7 +1,6 @@
 package com.example.quickbite.Core.DI
 
 import androidx.navigation.Navigator
-import com.example.quickbite.Data.Remote.SpoonacularService
 import com.example.quickbite.Data.Remote.UnsplashService
 import dagger.Module
 import dagger.Provides
@@ -46,16 +45,12 @@ object NetworkModule {
     }
 
 
+
     @Provides
     @Singleton
     fun provideUnsplashService(@Named("unsplash") retrofit: Retrofit): UnsplashService =
         retrofit.create(UnsplashService::class.java)
+    }
 
 
-    @Provides
-    @Singleton
-    fun provideSpoonacularService(@Named("spoonacular") retrofit: Retrofit): SpoonacularService =
-        retrofit.create(SpoonacularService::class.java)
 
-
-}

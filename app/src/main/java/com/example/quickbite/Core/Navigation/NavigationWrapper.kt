@@ -6,9 +6,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.quickbite.View.Home_Screen
+import com.example.quickbite.View.ListOfRecipes_Screen
 import com.example.quickbite.View.Login_Screen
-import com.example.quickbite.View.RecipiesCategories_Screen
+import com.example.quickbite.View.RecipesCategories_Screen
+import com.example.quickbite.ViewModel.SpoonacularViewModel
 import com.example.quickbite.ViewModel.UnsplashViewModel
 
 
@@ -22,10 +25,22 @@ fun NavigationWrapper(modifier: Modifier) {
 
         }
         composable<Home> {
-            Home_Screen(modifier) {navController.navigate(Recipies_Categories) }
+            Home_Screen(modifier) { navController.navigate(Recipes_Categories) }
         }
-        composable<Recipies_Categories> {
+        composable<Recipes_Categories> {
             val viewModel: UnsplashViewModel = hiltViewModel()
-            RecipiesCategories_Screen(modifier, viewModel) }
+            RecipesCategories_Screen(modifier, viewModel) { name ->
+                navController.navigate(
+                    List_Of_Recipes(name = name)
+                )
+            }
+        }
+        composable<List_Of_Recipes>
+        { backStackEntry ->
+            val viewModel: SpoonacularViewModel = hiltViewModel()
+            val listOfRecipes: List_Of_Recipes = backStackEntry.toRoute()
+            ListOfRecipes_Screen(modifier, listOfRecipes.name, viewModel)
+        }
+
     }
 }

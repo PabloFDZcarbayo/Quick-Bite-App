@@ -9,4 +9,7 @@ object Login
 object Home
 
 @Serializable
-object Recipies_Categories
+object Recipes_Categories
+
+@Serializable
+data class List_Of_Recipes (val name:String)

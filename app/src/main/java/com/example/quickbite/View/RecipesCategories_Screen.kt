@@ -24,35 +24,31 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.example.quickbite.Data.Remote.Repositories.UnsplashRepository
-import com.example.quickbite.Data.Remote.UnsplashService
 import com.example.quickbite.Model.Category
 import com.example.quickbite.R
+import com.example.quickbite.View.Components.MainFooter
 import com.example.quickbite.ViewModel.UnsplashViewModel
 
 
 @Composable
-fun RecipiesCategories_Screen(modifier: Modifier, viewModel: UnsplashViewModel) {
+fun RecipesCategories_Screen(
+    modifier: Modifier,
+    viewModel: UnsplashViewModel,
+    navigateToRecipesList : (String) -> Unit
+) {
 
     val categories = viewModel.categories
     val isLoading = viewModel.isLoading.value
@@ -74,22 +70,23 @@ fun RecipiesCategories_Screen(modifier: Modifier, viewModel: UnsplashViewModel) 
                     )
                 )
         ) {
-            RecipiesCategoriesBody(
+            RecipesCategoriesBody(
                 Modifier
                     .align(Alignment.CenterHorizontally)
                     .background(Color(0xFFFFFFFF)),
                 categories, //mandamos las categorias
-                isLoading//indicamos si esta cargando
+                isLoading,//indicamos si esta cargando
+                navigateToRecipesList
             )
         }
         Spacer(Modifier.weight(1f))
-        HomeFooter(Modifier.align(Alignment.CenterHorizontally))
+        MainFooter(Modifier.align(Alignment.CenterHorizontally))
 
     }
 }
 
 @Composable
-fun RecipiesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoading: Boolean) {
+fun RecipesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoading: Boolean, navigateToRecipesList: (String) -> Unit) {
     Column(
         modifier
             .fillMaxWidth()
@@ -124,7 +121,7 @@ fun RecipiesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoa
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(categories) { category ->
-                    CategoryCard(category)
+                    CategoryCard(category, navigateToRecipesList)
                 }
             }
         } else {
@@ -140,15 +137,14 @@ fun RecipiesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoa
         }
     }
 }
-
 @Composable
-fun CategoryCard(category: Category) {
+fun CategoryCard(category: Category, navigateToRecipesList: (String) -> Unit) {
     Card(
         Modifier
             .padding(top = 20.dp, bottom = 20.dp)
             .width(100.dp)
             .height(100.dp)
-            .clickable { },
+            .clickable {navigateToRecipesList(category.name)},
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
     ) {

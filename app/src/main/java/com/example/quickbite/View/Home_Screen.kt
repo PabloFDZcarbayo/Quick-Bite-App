@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quickbite.Model.Opcion
 import com.example.quickbite.R
-
+import com.example.quickbite.View.Components.MainFooter
 
 
 @Preview(showBackground = true)
@@ -97,56 +97,7 @@ fun Home_Screen(modifier: Modifier, navigateToRecipiesCategories: () -> Unit) {
             )
         }
         Spacer(Modifier.weight(1f))
-        HomeFooter(Modifier.align(Alignment.CenterHorizontally))
-    }
-}
-
-@Composable
-fun HomeFooter(modifier: Modifier) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(start = 10.dp, end = 10.dp, bottom = 20.dp, top = 20.dp),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            modifier = Modifier
-                .size(24.dp)
-                .weight(1f)
-                .clickable { },
-            painter = painterResource(id = R.drawable.star),
-            contentDescription = "Favoritos",
-            tint = Color(0xFFfb8500)
-
-        )
-        VerticalDivider(
-            thickness = 3.dp,
-            color = Color(0xFFfb8500)
-        )
-        Icon(
-            modifier = Modifier
-                .size(24.dp)
-                .weight(1f)
-                .clickable { },
-            painter = painterResource(id = R.drawable.home),
-            contentDescription = "Home",
-            tint = Color(0xFFfb8500)
-        )
-        VerticalDivider(
-            thickness = 3.dp,
-            color = Color(0xFFfb8500)
-        )
-        Icon(
-            modifier = Modifier
-                .size(24.dp)
-                .weight(1f)
-                .clickable { },
-            painter = painterResource(id = R.drawable.user),
-            contentDescription = "Usuario",
-            tint = Color(0xFFfb8500)
-        )
-
-
+        MainFooter(Modifier.align(Alignment.CenterHorizontally))
     }
 }
 
@@ -162,12 +113,11 @@ fun HomeBody(modifier: Modifier, navigateToRecipiesCategories: () -> Unit) {
         ) {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(getOpciones()) { Opcion ->
-                itemOpcion(Opcion, navigateToRecipiesCategories)
+                OpcionCard(Opcion, navigateToRecipiesCategories)
             }
         }
     }
 }
-
 
 fun getOpciones(): List<Opcion> {
     return listOf(
@@ -188,7 +138,7 @@ fun getOpciones(): List<Opcion> {
 
 
 @Composable
-fun itemOpcion(opcion: Opcion, navigateToRecipiesCategories: () -> Unit) {
+fun OpcionCard(opcion: Opcion, navigateToRecipiesCategories: () -> Unit) {
     Card(
         Modifier
             .padding(top = 20.dp, bottom = 20.dp)
