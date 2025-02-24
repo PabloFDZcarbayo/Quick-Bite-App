@@ -1,9 +1,7 @@
 package com.example.quickbite.View
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,17 +17,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,143 +33,152 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.quickbite.Model.Opcion
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottiePainter
+import com.example.quickbite.Model.Category
 import com.example.quickbite.R
 import com.example.quickbite.View.Components.MainFooter
+import com.example.quickbite.View.Components.ShadowBackground
+import com.example.quickbite.ViewModel.UnsplashViewModel
 
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun Home_ScreenPreview() {
-    Home_Screen(Modifier, navigateToRecipiesCategories = { })
+    Home_Screen(Modifier, ViewModel = viewModel(), navigateToRecipesCategories = { })
 }
+ */
 
 @Composable
-fun Home_Screen(modifier: Modifier, navigateToRecipiesCategories: () -> Unit) {
+fun Home_Screen(
+    modifier: Modifier,
+    viewModel: UnsplashViewModel,
+    navigateToRecipesCategories: () -> Unit,
+    navigateToRecipesList: (String) -> Unit
+) {
+    val categories = viewModel.categories.subList(0, 4)
+    val isLoading = viewModel.isLoading.value
+
     Column(
         modifier
             .fillMaxSize()
-            .background(color = Color(0xFFa1d8cd))
+            .background(color = Color(0xFF0a0c0c))
     ) {
         HomeTopSection(
             Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color(0xFFa1d8cd))
+                .background(Color(0xFF0a0c0c))
         )
-        Surface(
+        HomeBody(
             Modifier
                 .align(Alignment.CenterHorizontally)
-                .fillMaxWidth()
-                .height(480.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 34.dp,
-                        topEnd = 34.dp,
-                        bottomEnd = 34.dp,
-                        bottomStart = 34.dp
-                    )
-                )
+                .background(Color(0xFF0a0c0c)),
+            categories,
+            isLoading,
+            navigateToRecipesCategories,
+            navigateToRecipesList
+        )
 
-        ) {
-            HomeBody(
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .background(Color(0xFFFFFFFF)),
-                navigateToRecipiesCategories
-            )
-        }
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(2f))
         MainFooter(Modifier.align(Alignment.CenterHorizontally))
     }
 }
 
 
 @Composable
-fun HomeBody(modifier: Modifier, navigateToRecipiesCategories: () -> Unit) {
-    Row(
+fun HomeBody(
+    modifier: Modifier,
+    categories: List<Category>,
+    isLoading: Boolean,
+    navigateToRecipesCategories: () -> Unit,
+    navigateToRecipesList: (String) -> Unit
+
+) {
+
+    Column(
         modifier
             .fillMaxWidth()
             .padding(start = 20.dp, end = 20.dp),
-        horizontalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Categorys",
+                fontSize = 24.sp,
+                fontWeight = Bold,
+                color = Color(0xFFf7fdfd)
+            )
+            Spacer(Modifier.width(150.dp))
 
-        ) {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(getOpciones()) { Opcion ->
-                OpcionCard(Opcion, navigateToRecipiesCategories)
+            Text(
+                "See all >>",
+                Modifier.clickable { navigateToRecipesCategories() },
+                fontSize = 16.sp,
+                color = Color(0xFF01bd5f)
+            )
+        }
+        if (!isLoading) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(categories) { category ->
+                    OpcionCard(category, navigateToRecipesList)
+                }
             }
+        } else {
+            CircularProgressIndicator(
+                Modifier
+                    .size(60.dp)
+                    .padding(top = 80.dp)
+                    .align(Alignment.CenterHorizontally),
+                color = Color(0xFF01bd5f),
+                strokeWidth = 5.dp
+            )
         }
     }
 }
 
-fun getOpciones(): List<Opcion> {
-    return listOf(
-        Opcion(
-            1,
-            "Recetas",
-            "Explora nuestra amplia variedad de recetas",
-            R.drawable.opcion_receta
-        ),
-        Opcion(
-            2,
-            "Lista de compra",
-            "¿Cansado de pensar que comprar? Prueba nuestra lista de compra automatica",
-            R.drawable.opcion_lista_compra
-        )
-    )
-}
-
-
 @Composable
-fun OpcionCard(opcion: Opcion, navigateToRecipiesCategories: () -> Unit) {
+fun OpcionCard(category: Category, navigateToRecipesList: (String) -> Unit) {
     Card(
         Modifier
             .padding(top = 20.dp, bottom = 20.dp)
-            .width(340.dp)
-            .height(330.dp)
-            .clickable { if(opcion.id == 1) navigateToRecipiesCategories() },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
+            .width(180.dp)
+            .height(180.dp)
+            .clickable { navigateToRecipesList(category.name) },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1d2721)),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
     )
-
     {
         Column(
             Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
         ) {
-            CardImage(opcion)
+            CardImage(category.image)
             Text(
-                opcion.nombre,
+                category.name,
                 Modifier
-                    .padding(top = 20.dp, start = 20.dp, end = 20.dp)
+                    .padding(top = 10.dp, start = 20.dp, end = 20.dp)
                     .align(Alignment.CenterHorizontally),
-                fontWeight = ExtraBold,
-                fontSize = 30.sp,
+                fontWeight = Bold,
+                maxLines = 1,
+                fontSize = 20.sp,
                 letterSpacing = 3.sp,
                 color = Color(0xFF6fb8500)
-            )
-            Text(
-                text = opcion.descripcion,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 15.dp, start = 20.dp, end = 20.dp, bottom = 10.dp),
-                fontWeight = Bold,
-                fontSize = 15.sp,
-                color = Color(0xFF6fb8500),
-                textAlign = TextAlign.Center
             )
         }
     }
@@ -182,33 +186,27 @@ fun OpcionCard(opcion: Opcion, navigateToRecipiesCategories: () -> Unit) {
 
 
 @Composable
-fun CardImage(opcion: Opcion) {
+fun CardImage(image: String) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.placeholder_animation))
+    val progress by animateLottieCompositionAsState(composition)
     Box(
         Modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(120.dp)
     ) {
-        Image(
-            painter = painterResource(id = opcion.poster),
-            contentDescription = "opcion",
-            Modifier
-                .fillMaxWidth()
-                .height(180.dp),
-            contentScale = ContentScale.Crop
-        )
-        Box(
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(image)
+                .crossfade(true)
+                .build(),
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent, // Transparente en la parte superior
-                            Color.Black.copy(alpha = 0.5f) // Negro semitransparente en la parte inferior
-                        ), startY = 0f, // Comienza en la parte superior
-                        endY = Float.POSITIVE_INFINITY // Termina en la parte inferior
-                    )
-                )
+                .fillMaxWidth()
+                .height(165.dp),
+            contentDescription = "Category Image",
+            contentScale = ContentScale.Crop,
+            placeholder = rememberLottiePainter(composition = composition, progress = progress)
         )
+        ShadowBackground()
     }
 }
 
@@ -233,19 +231,19 @@ fun HomeTopSection(modifier: Modifier) {
             placeholder = {
                 Text(
                     "¿Que necesitas hoy?",
-                    color = Color(0xFFfb8500),
+                    color = Color(0xFF57665f),
                     fontSize = 15.sp
                 )
             },
             colors = SearchBarDefaults.colors(
-                containerColor = Color(0xFFFFFFFF)
+                containerColor = Color(0xFF1d2721)
             ),
             leadingIcon = {
                 Icon(
                     modifier = Modifier.size(15.dp),
                     painter = painterResource(id = R.drawable.search),
                     contentDescription = "Buscar",
-                    tint = Color(0xFFfb8500)
+                    tint = Color(0xFF57665f)
                 )
             }
         ) { }
@@ -266,7 +264,7 @@ fun Welcome() {
             "¡Bienvenido, User!",
             fontSize = 25.sp,
             fontWeight = Bold,
-            color = Color(0xFFfb8500)
+            color = Color(0xFFf7fdfd)
         )
         Spacer(Modifier.weight(1f))
         Image(

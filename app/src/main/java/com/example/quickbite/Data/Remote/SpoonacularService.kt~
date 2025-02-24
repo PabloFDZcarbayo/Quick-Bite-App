@@ -24,7 +24,7 @@ interface SpoonacularService {
 
     ):List<InstructionsResponse>
 
-
+    @GET("recipes/{id}/ingredientWidgets")
 
 
     data class RecipesResponse(

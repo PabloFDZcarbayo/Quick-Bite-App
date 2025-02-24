@@ -4,8 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.parcelize)
     id("kotlin-kapt")
-    id("kotlin-parcelize")
+    alias(libs.plugins.google.gms.google.services)
 
 
 }
@@ -67,13 +68,18 @@ dependencies {
     //Hilt compose
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.firebase.firestore)
     kapt(libs.hilt.compiler)
 
     //Couroutines
     implementation(libs.kotlinx.coroutines.core)
 
+    //Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+
+    //Lotie
+    implementation(libs.lottie.compose)
 
 
 

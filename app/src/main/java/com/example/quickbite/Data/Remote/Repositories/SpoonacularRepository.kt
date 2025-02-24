@@ -14,6 +14,15 @@ class SpoonacularRepository @Inject constructor(private val spoonacularService: 
             emptyList()
         }
     }
+
+    suspend fun getInstructions(apiKey: String, id: Int): List<SpoonacularService.InstructionsResponse> {
+        return try {
+            spoonacularService.getInstructions(id,apiKey)
+        } catch (Exception: Exception) {
+            Log.d("SPOONACULAR", "API EXCEPTION: $Exception")
+            emptyList()
+        }
+    }
 }
 
 

@@ -24,6 +24,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +39,11 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottiePainter
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottiePainter
 import com.example.quickbite.Model.Category
 import com.example.quickbite.R
 import com.example.quickbite.View.Components.MainFooter
@@ -47,7 +54,7 @@ import com.example.quickbite.ViewModel.UnsplashViewModel
 fun RecipesCategories_Screen(
     modifier: Modifier,
     viewModel: UnsplashViewModel,
-    navigateToRecipesList : (String) -> Unit
+    navigateToRecipesList: (String) -> Unit
 ) {
 
     val categories = viewModel.categories
@@ -56,7 +63,7 @@ fun RecipesCategories_Screen(
     Column(
         modifier
             .fillMaxSize()
-            .background(color = Color(0xFFa1d8cd))
+            .background(color = Color(0xFF0a0c0c))
     ) {
         Surface(
             Modifier
@@ -73,7 +80,7 @@ fun RecipesCategories_Screen(
             RecipesCategoriesBody(
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .background(Color(0xFFFFFFFF)),
+                    .background(Color(0xFF0a0c0c)),
                 categories, //mandamos las categorias
                 isLoading,//indicamos si esta cargando
                 navigateToRecipesList
@@ -86,7 +93,12 @@ fun RecipesCategories_Screen(
 }
 
 @Composable
-fun RecipesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoading: Boolean, navigateToRecipesList: (String) -> Unit) {
+fun RecipesCategoriesBody(
+    modifier: Modifier,
+    categories: List<Category>,
+    isLoading: Boolean,
+    navigateToRecipesList: (String) -> Unit
+) {
     Column(
         modifier
             .fillMaxWidth()
@@ -99,17 +111,17 @@ fun RecipesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoad
             fontSize =
             30.sp,
             fontWeight = Bold,
-            color = Color(0xFFfb8500)
+            color = Color(0xFFf7fdfd)
         )
         Text(
-            "Explora todas nuestras categorias de recetas",
+            "Explore all our categories and find your favorite recipes",
             Modifier
                 .align(Alignment.Start)
                 .padding(top = 16.dp, bottom = 16.dp),
             fontSize = 15.sp,
-            color = Color(0xFF6fb8500)
+            color = Color(0xFF57665f)
         )
-        HorizontalDivider(Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFF6fb8500))
+        HorizontalDivider(Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFF01bd5f))
 
 
         if (!isLoading) {
@@ -131,21 +143,24 @@ fun RecipesCategoriesBody(modifier: Modifier, categories: List<Category>, isLoad
                     .size(60.dp)
                     .padding(top = 80.dp)
                     .align(Alignment.CenterHorizontally),
-                color = Color(0xFFfb8500),
+                color = Color(0xFF01bd5f),
                 strokeWidth = 5.dp
             )
         }
     }
 }
+
 @Composable
 fun CategoryCard(category: Category, navigateToRecipesList: (String) -> Unit) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.placeholder_animation))
+    val progress by animateLottieCompositionAsState(composition)
     Card(
         Modifier
             .padding(top = 20.dp, bottom = 20.dp)
             .width(100.dp)
             .height(100.dp)
-            .clickable {navigateToRecipesList(category.name)},
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
+            .clickable { navigateToRecipesList(category.name) },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1d2721)),
         elevation = CardDefaults.cardElevation(defaultElevation = 7.dp),
     ) {
 
@@ -160,7 +175,7 @@ fun CategoryCard(category: Category, navigateToRecipesList: (String) -> Unit) {
                     .height(60.dp),
                 contentDescription = "Category Image",
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.opcion_receta)
+                placeholder = rememberLottiePainter(composition = composition, progress = progress)
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {

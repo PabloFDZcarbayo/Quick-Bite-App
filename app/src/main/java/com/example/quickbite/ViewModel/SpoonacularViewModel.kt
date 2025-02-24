@@ -8,8 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.quickbite.Data.Remote.Repositories.SpoonacularRepository
 import com.example.quickbite.Data.Remote.SpoonacularService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,8 +17,11 @@ class SpoonacularViewModel @Inject constructor(private val spoonacularRepository
 
     private val apiKey = "aef4d533aaa54d0ea4ce0e58a213781e"
 
-    private val _recipiesList = mutableStateListOf<SpoonacularService.Recipe>()
-    val recipesList: SnapshotStateList<SpoonacularService.Recipe> get() = _recipiesList
+    private val _recipesList = mutableStateListOf<SpoonacularService.Recipe>()
+    val recipesList: SnapshotStateList<SpoonacularService.Recipe> get() = _recipesList
+
+    private val _instruction = mutableStateListOf<SpoonacularService.Step>()
+    val instruction: SnapshotStateList<SpoonacularService.Step> get() = _instruction
 
 
     fun getRecipesType(categoryName: String) {
@@ -28,8 +29,21 @@ class SpoonacularViewModel @Inject constructor(private val spoonacularRepository
             try {
                 val recipesResponse = spoonacularRepository.getRecipesType(apiKey, categoryName)
                 Log.d ("SPOONACULAR", "PETICION A API: $recipesResponse")
-                _recipiesList.clear()
-                _recipiesList.addAll(recipesResponse)
+                _recipesList.clear()
+                _recipesList.addAll(recipesResponse)
+            } catch (Exception: Exception) {
+                Log.d("Spoonacular", "API Exception: $Exception")
+            }
+        }
+    }
+
+    fun getInstructions(id: Int) {
+        viewModelScope.launch {
+            try {
+                val instructionsResponse = spoonacularRepository.getInstructions(apiKey, id)
+                Log.d ("SPOONACULAR", "PETICION A API: $instructionsResponse")
+                _instruction.clear()
+                _instruction.addAll(instructionsResponse.first().steps)
             } catch (Exception: Exception) {
                 Log.d("Spoonacular", "API Exception: $Exception")
             }
