@@ -26,9 +26,10 @@ fun UserName(modifier: Modifier, username: String, onTextChanged:(String) -> Uni
             onValueChange = { onTextChanged(it) },
             modifier
                 .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 10.dp),
             textStyle = TextStyle(fontSize = 20.sp),
             placeholder = { Text("Username", fontSize = 20.sp) },
+            supportingText = { Text("Min 6 characters", fontSize = 8.sp) },
             maxLines = 1, //Hace que como mucho pueda escribir una línea
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text), //Configuramos para que el teclado sea de tipo email
@@ -42,7 +43,10 @@ fun UserName(modifier: Modifier, username: String, onTextChanged:(String) -> Uni
                 focusedTextColor = Color(0xFF01bd5f),
                 unfocusedTextColor = Color(0xFF57665f),
                 unfocusedPlaceholderColor = Color(0xFF57665f),
-                focusedPlaceholderColor = Color(0xFF57665f)
+                focusedPlaceholderColor = Color(0xFF57665f),
+                focusedSupportingTextColor = Color(0xFF01bd5f),
+                unfocusedSupportingTextColor = Color(0xFF57665f),
+
             ),
             shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
         )

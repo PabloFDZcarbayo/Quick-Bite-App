@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     id("kotlin-kapt")
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 
 
 }
@@ -68,9 +69,15 @@ dependencies {
     //Hilt compose
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.firebase.firestore)
     kapt(libs.hilt.compiler)
 
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.crashlytics)
+   
     //Couroutines
     implementation(libs.kotlinx.coroutines.core)
 

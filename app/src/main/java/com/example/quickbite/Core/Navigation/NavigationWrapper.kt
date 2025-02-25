@@ -17,6 +17,7 @@ import com.example.quickbite.View.RecipesCategories_Screen
 import com.example.quickbite.View.SingUp_Screen
 import com.example.quickbite.ViewModel.SpoonacularViewModel
 import com.example.quickbite.ViewModel.UnsplashViewModel
+import com.example.quickbite.ViewModel.UserViewModel
 import kotlin.reflect.typeOf
 
 
@@ -26,13 +27,16 @@ fun NavigationWrapper(modifier: Modifier) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Login) {
         composable<Login> {
+            val viewModel: UserViewModel = hiltViewModel()
             Login_Screen(modifier,
+                viewModel,
                 navigateToHome = { navController.navigate(Home) },
                 navigateToSingUp = { navController.navigate(SingUp) })
         }
 
         composable<SingUp> {
-            SingUp_Screen(modifier) { navController.navigate(Login) }
+            val viewModel: UserViewModel = hiltViewModel()
+            SingUp_Screen(modifier, viewModel) { navController.navigate(Login) }
         }
 
         composable<Home> { backStackEntry ->

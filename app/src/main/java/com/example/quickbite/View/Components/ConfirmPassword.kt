@@ -27,7 +27,12 @@ import androidx.compose.ui.unit.sp
 import com.example.quickbite.R
 
 @Composable
-fun ConfirmPassword(modifier: Modifier, password: String, onTextChanged: (String) -> Unit) {
+fun ConfirmPassword(
+    modifier: Modifier,
+    password: String,
+    showPasswordError: Boolean,
+    onTextChanged: (String) -> Unit
+) {
     var passwordVisibility by rememberSaveable { mutableStateOf(false) }
 
     TextField(
@@ -35,9 +40,10 @@ fun ConfirmPassword(modifier: Modifier, password: String, onTextChanged: (String
         onValueChange = { onTextChanged(it) },
         modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 5.dp),
         textStyle = TextStyle(fontSize = 20.sp),
         placeholder = { Text(text = "Confirm Password", fontSize = 20.sp) },
+        supportingText = { Text("Min 6 characters", fontSize = 8.sp) },
         maxLines = 1, //Hace que como mucho pueda escribir una línea
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), //Configuramos para que el teclado sea de tipo contraseña
@@ -46,12 +52,16 @@ fun ConfirmPassword(modifier: Modifier, password: String, onTextChanged: (String
             unfocusedContainerColor = Color(0xFF1d2721),
             focusedContainerColor = Color(0xFF1d2721),
             cursorColor = Color(0xFF01bd5f),
-            focusedIndicatorColor = Color(0xFF01bd5f),
-            unfocusedIndicatorColor = Color(0xFF57665f),
+            focusedIndicatorColor = if (showPasswordError) Color.Red else Color(0xFF01bd5f),
+            unfocusedIndicatorColor = if (showPasswordError) Color.Red else Color(0xFF57665f),
             focusedTextColor = Color(0xFF01bd5f),
             unfocusedTextColor = Color(0xFF57665f),
             unfocusedPlaceholderColor = Color(0xFF57665f),
-            focusedPlaceholderColor = Color(0xFF57665f)
+            focusedPlaceholderColor = Color(0xFF57665f),
+            focusedSupportingTextColor = if (showPasswordError) Color.Red else Color(0xFF01bd5f),
+            unfocusedSupportingTextColor = if (showPasswordError) Color.Red else Color(0xFF57665f),
+            focusedTrailingIconColor = if (showPasswordError) Color.Red else Color(0xFF01bd5f),
+            unfocusedTrailingIconColor = Color(0xFF57665f),
         ), shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
 
         /*
@@ -70,7 +80,6 @@ fun ConfirmPassword(modifier: Modifier, password: String, onTextChanged: (String
                 Icon(
                     modifier = Modifier.size(30.dp),
                     painter = painterResource(id = imagen),
-                    tint = Color(0xFF57665f),
                     contentDescription = "Mostrar contraseña"
                 )
             }

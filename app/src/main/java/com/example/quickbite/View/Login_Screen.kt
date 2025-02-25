@@ -4,6 +4,7 @@ package com.example.quickbite.View
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,8 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,9 +59,15 @@ import com.example.quickbite.R
 import com.example.quickbite.View.Components.Email
 import com.example.quickbite.View.Components.Password
 import com.example.quickbite.View.Components.ShadowBackground
+import com.example.quickbite.ViewModel.UserViewModel
 
 @Composable
-fun Login_Screen(modifier: Modifier, navigateToHome: () -> Unit, navigateToSingUp: () -> Unit) {
+fun Login_Screen(
+    modifier: Modifier,
+    userViewModel: UserViewModel,
+    navigateToHome: () -> Unit,
+    navigateToSingUp: () -> Unit
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -70,6 +80,7 @@ fun Login_Screen(modifier: Modifier, navigateToHome: () -> Unit, navigateToSingU
         LoginBody(
             Modifier
                 .align(Alignment.BottomCenter),
+            userViewModel,
             navigateToHome,
             navigateToSingUp
 
@@ -140,7 +151,7 @@ fun SingUp(navigateToSingUp: () -> Unit) {
         )
         Text(
             "Regístrate",
-            Modifier.clickable {navigateToSingUp() },
+            Modifier.clickable { navigateToSingUp() },
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             color = Color(0xFF01bd5f)
@@ -151,10 +162,37 @@ fun SingUp(navigateToSingUp: () -> Unit) {
 
 
 @Composable
-fun LoginBody(modifier: Modifier, navigateToHome: () -> Unit, navigateToSingUp: () -> Unit) {
+fun LoginBody(
+    modifier: Modifier,
+    userViewModel: UserViewModel,
+    navigateToHome: () -> Unit,
+    navigateToSingUp: () -> Unit
+) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var isLoginEnable by rememberSaveable { mutableStateOf(false) }
+    var showPasswordError by remember { mutableStateOf(false) }
+    //Observamos el estado del usuario desde el viewModel
+    val user by userViewModel.userState.collectAsState()
+    val errorMessage by userViewModel.errorMessage.collectAsState()
+    val context = LocalContext.current
+
+    //Comprobamos si ya habia un usuario logeado, en el caso de que si, iremos al home directamente
+    LaunchedEffect(user) {
+        if (user != null) {
+            navigateToHome()
+        }
+    }
+    //Lo utilizamos para mostrar los posibles errores
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            email = ""
+            password = ""
+            showPasswordError = true
+            userViewModel.clearErrorMessage()
+        }
+    }
 
     Surface(
         modifier = modifier
@@ -169,20 +207,40 @@ fun LoginBody(modifier: Modifier, navigateToHome: () -> Unit, navigateToSingUp: 
 
         ) {
             Spacer(Modifier.size(40.dp))
-            Email(Modifier.align(Alignment.CenterHorizontally), email) {
+            Email(Modifier.align(Alignment.CenterHorizontally), email, showPasswordError) {
                 email = it
-                isLoginEnable = enableLogin(email, password)
+                showPasswordError = false
+                isLoginEnable = userViewModel.enableLogin(email, password)
             }
             Spacer(Modifier.size(8.dp))
-            Password(Modifier.align(Alignment.CenterHorizontally), password) {
+            Password(Modifier.align(Alignment.CenterHorizontally), password, showPasswordError) {
                 password = it
-                isLoginEnable = enableLogin(email, password)
+                showPasswordError = false
+                isLoginEnable = userViewModel.enableLogin(email, password)
             }
             Spacer(Modifier.size(2.dp))
             ForgotPassword(Modifier.align(Alignment.End))
             Spacer(Modifier.size(16.dp))
-            LoginButton(isLoginEnable, navigateToHome)
+            Button(
+                onClick = { userViewModel.signIn(email, password) },
+                enabled = isLoginEnable,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp, end = 30.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF01bd5f),
+                    disabledContainerColor = Color(0xFF1d2721),
+                    contentColor = Color(0xFF0a0c0c),
+                    disabledContentColor = Color(0xFF57665f),
+
+                    )
+            ) {
+                Text("Iniciar sesión")
+            }
+
+
             Spacer(Modifier.size(10.dp))
+
             LoginDivider(Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.size(10.dp))
             SocialLogin(Modifier.align(Alignment.CenterHorizontally))
@@ -267,30 +325,6 @@ fun LoginDivider(modifier: Modifier) {
 
 }
 
-@Composable
-fun LoginButton(loginEnable: Boolean, navigateToHome: () -> Unit) {
-    Button(
-        onClick = { navigateToHome() },
-        enabled = loginEnable,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF01bd5f),
-            disabledContainerColor = Color(0xFF1d2721),
-            contentColor = Color(0xFF0a0c0c),
-            disabledContentColor = Color(0xFF57665f),
-
-            )
-    ) {
-        Text("Iniciar sesión")
-    }
-}
-
-//Comprueba que el texto que le pasamos (email) tenga el formato email, ademas que la password tenga la longitud mínima
-fun enableLogin(email: String, password: String) =
-    Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length >= 6
-
 
 @Composable
 fun ForgotPassword(modifier: Modifier) {
@@ -304,7 +338,6 @@ fun ForgotPassword(modifier: Modifier) {
         color = Color(0xFF01bd5f)
     )
 }
-
 
 @Composable
 fun ImageLogo(modifier: Modifier) {

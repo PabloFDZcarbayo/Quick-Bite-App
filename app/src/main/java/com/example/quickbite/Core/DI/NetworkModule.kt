@@ -1,6 +1,5 @@
 package com.example.quickbite.Core.DI
 
-import androidx.navigation.Navigator
 import com.example.quickbite.Data.Remote.SpoonacularService
 import com.example.quickbite.Data.Remote.UnsplashService
 import dagger.Module

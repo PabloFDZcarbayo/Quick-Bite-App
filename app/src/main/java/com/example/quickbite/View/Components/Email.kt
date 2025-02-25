@@ -19,13 +19,13 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun Email(modifier: Modifier, email: String, onTextChanged: (String) -> Unit) {
+fun Email(modifier: Modifier, email: String,showPasswordError:Boolean, onTextChanged: (String) -> Unit) {
 
         TextField(
             email,
             onValueChange = { onTextChanged(it) },
             modifier
-                .fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+                .fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 5.dp, bottom = 10.dp),
             textStyle = TextStyle(fontSize = 20.sp),
             placeholder = { Text("Email", fontSize = 20.sp) },
             maxLines = 1, //Hace que como mucho pueda escribir una línea
@@ -36,8 +36,8 @@ fun Email(modifier: Modifier, email: String, onTextChanged: (String) -> Unit) {
                 unfocusedContainerColor = Color(0xFF1d2721),
                 focusedContainerColor = Color(0xFF1d2721),
                 cursorColor = Color(0xFF01bd5f),
-                focusedIndicatorColor = Color(0xFF01bd5f),
-                unfocusedIndicatorColor = Color(0xFF57665f),
+                focusedIndicatorColor = if (showPasswordError) Color.Red else Color(0xFF01bd5f),
+                unfocusedIndicatorColor = if (showPasswordError) Color.Red else Color(0xFF57665f),
                 focusedTextColor = Color(0xFF01bd5f),
                 unfocusedTextColor = Color(0xFF57665f),
                 unfocusedPlaceholderColor = Color(0xFF57665f),
