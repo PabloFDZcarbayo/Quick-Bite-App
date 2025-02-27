@@ -175,7 +175,7 @@ fun TextFieldsContainer(
         onClick = {
             passwordMatch = userViewModel.checkpasswordMatch(password, confirmPassword)
             if (passwordMatch) {
-                userViewModel.signUp(username, email, password, profileImageUri)
+                userViewModel.signUp(username, email, password, profileImageUri.toString())
                 if (errorMessage == null) {
                     Toast.makeText(context, "Account created successfully", Toast.LENGTH_SHORT)
                         .show()
