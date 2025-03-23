@@ -25,14 +25,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +38,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottiePainter
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottiePainter
@@ -48,17 +45,20 @@ import com.example.quickbite.Model.Category
 import com.example.quickbite.R
 import com.example.quickbite.View.Components.MainFooter
 import com.example.quickbite.ViewModel.UnsplashViewModel
+import com.example.quickbite.ViewModel.UserViewModel
 
 
 @Composable
 fun RecipesCategories_Screen(
     modifier: Modifier,
-    viewModel: UnsplashViewModel,
-    navigateToRecipesList: (String) -> Unit
+    userViewModel: UserViewModel,
+    unsplashViewModel: UnsplashViewModel,
+    navigateToRecipesList: (String) -> Unit,
+    navigateToHome: () -> Unit
 ) {
 
-    val categories = viewModel.categories
-    val isLoading = viewModel.isLoading.value
+    val categories = unsplashViewModel.categories
+    val isLoading = unsplashViewModel.isLoading.value
 
     Column(
         modifier
@@ -87,7 +87,11 @@ fun RecipesCategories_Screen(
             )
         }
         Spacer(Modifier.weight(1f))
-        MainFooter(Modifier.align(Alignment.CenterHorizontally))
+        MainFooter(
+            Modifier.align(Alignment.CenterHorizontally),
+            onLogOut = { userViewModel.onLogout() },
+            onHomeClick = navigateToHome
+        )
 
     }
 }

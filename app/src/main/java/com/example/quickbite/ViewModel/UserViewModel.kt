@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quickbite.Core.Firebase.FirebaseRepository
+import com.example.quickbite.Model.User
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -24,13 +25,27 @@ import javax.inject.Inject
 class UserViewModel @Inject constructor(private val firebaseRepository: FirebaseRepository) :
     ViewModel() {
 
-    //Se utilizara para guardar el estado del usuario
+    //Se utilizara para guardar el estado del usuario y poder mandarlo a la vista
     private val _userState = MutableStateFlow<FirebaseUser?>(null)
     val userState: StateFlow<FirebaseUser?> = _userState
 
-    //Lo utilizamos para mostrar los posibles errores
+    // Estado para los datos del usuario
+    private val _userData = MutableStateFlow<User?>(null)
+    val userData: StateFlow<User?> = _userData
+
+    //Lo utilizamos para mostrar los posibles errores y poder mandarlos a la vista
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+
+    init {
+        // Comprueba si el usuario estaba logueado
+        firebaseRepository.firebaseAuth.currentUser?.let { user ->
+            _userState.value = user
+            getUser(user.uid)
+        }
+    }
+
 
     //Verificamos si el  formato del email es correcto, y si la contraseña tiene el tamaño correcto
     fun enableLogin(email: String, password: String) =
@@ -38,7 +53,7 @@ class UserViewModel @Inject constructor(private val firebaseRepository: Firebase
 
 
     //Igual que antes pero con la ventana registro
-    fun enableSingUp(username: String, email: String, password: String, confirmPassword: String) =
+    fun enableSignUp(username: String, email: String, password: String, confirmPassword: String) =
         Patterns.EMAIL_ADDRESS.matcher(email)
             .matches() && username.length >= 6 && password.length >= 6 && confirmPassword.length >= 6
 
@@ -61,6 +76,11 @@ class UserViewModel @Inject constructor(private val firebaseRepository: Firebase
             result.onSuccess { user ->
                 _userState.value = user
                 _errorMessage.value = null
+                //Llamamos a get User para obtener los datos del usuario
+                user?.uid?.let {
+                    Log.d("UserViewModel", "User ID: $it")
+                    getUser(it)
+                }
             }
             //Por el contrario devolvemos un error
             result.onFailure { error ->
@@ -78,30 +98,42 @@ class UserViewModel @Inject constructor(private val firebaseRepository: Firebase
     fun signUp(username: String, email: String, password: String, profilePhoto: Uri?) {
         viewModelScope.launch {
             //Hacemos el proceso de registro con email y contraeña
-            val result = firebaseRepository.signUp(email, password)
+            val result = firebaseRepository.signUp(username, email, password, profilePhoto)
             //En caso de que todo sea correcto indicamos el estado del user a la vista y limpiamos posibles errores
             result.onSuccess { user ->
                 _userState.value = user
                 _errorMessage.value = null
-
-                //CAMBIAR A FIRESTORE
-                //Una vez registrado el user actualizamos sus datos con el nombre y la foto
-                user?.updateProfile(
-                    UserProfileChangeRequest.Builder()
-                        .setDisplayName(username)
-                        .setPhotoUri(profilePhoto)
-                        .build()
-                )?.await()
             }
             //En caso de error devolvemos un error
             result.onFailure { error ->
                 _errorMessage.value = when (error) {
-                    is FirebaseAuthUserCollisionException-> "This email is already in use."
+                    is FirebaseAuthUserCollisionException -> "This email is already in use."
                     else -> "An unknown error occurred. Please try again."
                 }
             }
         }
     }
+
+    fun getUser(userId: String) {
+        viewModelScope.launch {
+            Log.d("UserViewModel", "Fetching user data for ID: $userId")
+            val result = firebaseRepository.getUser(userId)
+            Log.d("UserViewModel", "User data mapped: $result")
+            result.onSuccess { user ->
+                _userData.value = user
+            }
+            result.onFailure { error ->
+                _errorMessage.value = error.localizedMessage
+            }
+        }
+    }
+
+    fun onLogout() {
+        firebaseRepository.signOut()
+        _userState.value = null
+        _userData.value = null
+    }
+
 
     //Limpiamos los posibles errores
     fun clearErrorMessage() {

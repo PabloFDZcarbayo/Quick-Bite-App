@@ -11,6 +11,8 @@ import javax.inject.Singleton
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 
+
+//Este modulo es el encargado de crear las instancias de las APIs
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -22,6 +24,7 @@ object NetworkModule {
     val unsplash_url = "https://api.unsplash.com/"
 
 
+    //Crea la instancia de la API de spoonacular
     @Provides
     @Singleton
     @Named("spoonacular")
@@ -33,6 +36,8 @@ object NetworkModule {
 
     }
 
+
+    //Crea la instancia de unsplash
     @Provides
     @Singleton
     @Named("unsplash")
@@ -45,12 +50,14 @@ object NetworkModule {
     }
 
 
+    //Creamos el servicio de unslpash
     @Provides
     @Singleton
     fun provideUnsplashService(@Named("unsplash") retrofit: Retrofit): UnsplashService =
         retrofit.create(UnsplashService::class.java)
 
 
+    //Creamos el servicio de spoonacular
     @Provides
     @Singleton
     fun provideSpoonacularService(@Named("spoonacular") retrofit: Retrofit): SpoonacularService =

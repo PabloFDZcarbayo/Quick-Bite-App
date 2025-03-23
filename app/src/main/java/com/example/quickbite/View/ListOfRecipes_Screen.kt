@@ -21,14 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,21 +41,23 @@ import com.airbnb.lottie.compose.rememberLottiePainter
 import com.example.quickbite.Data.Remote.SpoonacularService
 import com.example.quickbite.R
 import com.example.quickbite.View.Components.MainFooter
-import com.example.quickbite.View.Components.ShadowBackground
 import com.example.quickbite.ViewModel.SpoonacularViewModel
+import com.example.quickbite.ViewModel.UserViewModel
 
 @Composable
 fun ListOfRecipes_Screen(
     modifier: Modifier,
     name: String,
-    viewModel: SpoonacularViewModel,
-    onRecipeSelected: (recipe: SpoonacularService.Recipe) -> Unit
+    userViewModel: UserViewModel,
+    spoonacularViewModel: SpoonacularViewModel,
+    onRecipeSelected: (recipe: SpoonacularService.Recipe) -> Unit,
+    navigateToHome: () -> Unit
 ) {
-    val recipes = viewModel.recipesList
+    val recipes = spoonacularViewModel.recipesList
     /* Le pasamos la key a LaunchedEffect esto asegura que
      cada vez que el name cambie, se actualizará */
     LaunchedEffect(name) {
-        viewModel.getRecipesType(name)
+        spoonacularViewModel.getRecipesType(name)
     }
     Column(
         modifier
@@ -101,7 +101,11 @@ fun ListOfRecipes_Screen(
             )
         }
         Spacer(Modifier.weight(1f))
-        MainFooter(Modifier.align(Alignment.CenterHorizontally))
+        MainFooter(
+            Modifier.align(Alignment.CenterHorizontally),
+            onLogOut = { userViewModel.onLogout() },
+            onHomeClick = navigateToHome
+        )
 
     }
 }
@@ -136,7 +140,10 @@ fun ListOfRecipesBody(
 }
 
 @Composable
-fun RecipeCard(recipe: SpoonacularService.Recipe, onRecipeSelected: (recipe: SpoonacularService.Recipe) -> Unit) {
+fun RecipeCard(
+    recipe: SpoonacularService.Recipe,
+    onRecipeSelected: (recipe: SpoonacularService.Recipe) -> Unit
+) {
     Card(
         Modifier
             .padding(top = 5.dp, bottom = 20.dp)

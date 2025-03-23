@@ -1,6 +1,7 @@
 package com.example.quickbite.View
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -144,27 +145,27 @@ fun TextFieldsContainer(
     ) {
         UserName(Modifier.fillMaxWidth(), username) {
             username = it
-            isSingUpEnable = userViewModel.enableSingUp(username, email, password, confirmPassword)
+            isSingUpEnable = userViewModel.enableSignUp(username, email, password, confirmPassword)
             showPasswordError = false
         }
         Spacer(Modifier.size(4.dp))
         Email(Modifier.fillMaxWidth(), email, showPasswordError = false) {
             email = it
-            isSingUpEnable = userViewModel.enableSingUp(username, email, password, confirmPassword)
+            isSingUpEnable = userViewModel.enableSignUp(username, email, password, confirmPassword)
             showPasswordError = false
         }
     }
     Spacer(Modifier.size(4.dp))
     Password(Modifier.fillMaxWidth(), password, showPasswordError) {
         password = it
-        isSingUpEnable = userViewModel.enableSingUp(username, email, password, confirmPassword)
+        isSingUpEnable = userViewModel.enableSignUp(username, email, password, confirmPassword)
         showPasswordError = false
     }
 
     Spacer(Modifier.size(4.dp))
     ConfirmPassword(Modifier.fillMaxWidth(), confirmPassword, showPasswordError) {
         confirmPassword = it
-        isSingUpEnable = userViewModel.enableSingUp(username, email, password, confirmPassword)
+        isSingUpEnable = userViewModel.enableSignUp(username, email, password, confirmPassword)
         showPasswordError = false
     }
     Spacer(Modifier.size(4.dp))
@@ -206,11 +207,13 @@ fun TextFieldsContainer(
 
 @Composable
 fun ProfileImage(profileImageUri: Uri?, onImageSelected: (Uri?) -> Unit) {
+    Log.d("ProfileImage", "Profile Image URI: $profileImageUri") // Verifica el URI
 
     // Launcher para abrir la galería
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
+            Log.d("ProfileImage", "Selected Image URI: $uri") // Verifica el URI seleccionado
             onImageSelected(uri)
         })
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.image_animation))

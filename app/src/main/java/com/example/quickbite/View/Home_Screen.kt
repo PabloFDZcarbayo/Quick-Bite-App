@@ -1,5 +1,6 @@
 package com.example.quickbite.View
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,10 +50,13 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottiePainter
 import com.example.quickbite.Model.Category
+import com.example.quickbite.Model.User
 import com.example.quickbite.R
 import com.example.quickbite.View.Components.MainFooter
 import com.example.quickbite.View.Components.ShadowBackground
 import com.example.quickbite.ViewModel.UnsplashViewModel
+import com.example.quickbite.ViewModel.UserViewModel
+import com.google.firebase.auth.FirebaseUser
 
 
 /*
@@ -65,12 +70,18 @@ fun Home_ScreenPreview() {
 @Composable
 fun Home_Screen(
     modifier: Modifier,
-    viewModel: UnsplashViewModel,
+    unsplashViewModel: UnsplashViewModel,
+    userViewModel: UserViewModel,
     navigateToRecipesCategories: () -> Unit,
-    navigateToRecipesList: (String) -> Unit
+    navigateToRecipesList: (String) -> Unit,
+    onLogOut: () -> Unit
 ) {
-    val categories = viewModel.categories.subList(0, 4)
-    val isLoading = viewModel.isLoading.value
+    val categories = unsplashViewModel.categories.subList(0, 4)
+    val isLoading = unsplashViewModel.isLoading.value
+    val userData by userViewModel.userData.collectAsState()
+    val userState by userViewModel.userState.collectAsState()
+
+    Log.d("Home_Screen", "User data: $userData, User state: $userState")
 
     Column(
         modifier
@@ -82,7 +93,9 @@ fun Home_Screen(
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color(0xFF0a0c0c))
+                .background(Color(0xFF0a0c0c)),
+            userData,
+            userState
         )
         HomeBody(
             Modifier
@@ -95,7 +108,11 @@ fun Home_Screen(
         )
 
         Spacer(Modifier.weight(2f))
-        MainFooter(Modifier.align(Alignment.CenterHorizontally))
+        MainFooter(
+            Modifier.align(Alignment.CenterHorizontally),
+            onLogOut = { userViewModel.onLogout() },
+            onHomeClick = {})
+
     }
 }
 
@@ -213,12 +230,12 @@ fun CardImage(image: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopSection(modifier: Modifier) {
+fun HomeTopSection(modifier: Modifier, userData: User?, userState: FirebaseUser?) {
     var busqueda by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
 
     Column(modifier.padding(top = 30.dp)) {
-        Welcome()
+        Welcome(userData, userState)
         SearchBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -253,29 +270,45 @@ fun HomeTopSection(modifier: Modifier) {
 }
 
 @Composable
-fun Welcome() {
+fun Welcome(userData: User?, userState: FirebaseUser?) {
     Row(
         Modifier
             .fillMaxWidth()
             .padding(start = 20.dp, end = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val username = userData?.username ?: userState?.displayName ?: "User"
         Text(
-            "¡Bienvenido, User!",
+            "Welcome, $username",
             fontSize = 25.sp,
             fontWeight = Bold,
             color = Color(0xFFf7fdfd)
         )
         Spacer(Modifier.weight(1f))
-        Image(
-            painterResource(id = R.drawable.prueba_imagen_perfil),
-            contentDescription = "User",
-            Modifier
-                .size(80.dp)
-                .clip(shape = CircleShape)
-        )
 
+        if (userState?.photoUrl != null) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(userState.photoUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "User Profile",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(shape = CircleShape)
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.prueba_imagen_perfil),
+                contentDescription = "User",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(shape = CircleShape)
+            )
+        }
     }
 }
+
+
 
 
